@@ -47,8 +47,9 @@ class TestEvent(unittest.TestCase):
         event.emit()
 
     async def waitForEvent(self, event: Event) -> None:
-        await event
+        value = await event
         self.called = True
+        self.value = value
         asyncio.get_event_loop().stop()
 
     def test_awaitable(self) -> None:
@@ -56,7 +57,8 @@ class TestEvent(unittest.TestCase):
         self.called = False
 
         asyncio.get_event_loop().create_task(self.waitForEvent(event))
-        asyncio.get_event_loop().call_soon(event.emit)
+        asyncio.get_event_loop().call_soon(lambda: event.emit(5))
         asyncio.get_event_loop().run_forever()
 
         self.assertTrue(self.called)
+        self.assertEqual(self.value, 5)
