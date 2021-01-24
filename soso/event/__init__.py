@@ -39,7 +39,6 @@ class Event:
     def __init__(self, name: str, *argTypes: type, **kwArgTypes: type):
         self._name = name
         self._argTypes = argTypes
-        self._condition = asyncio.Condition()
         self._kwArgTypes = kwArgTypes
         self._groups: typing.Dict[
             Event.Group,
@@ -61,10 +60,6 @@ class Event:
     @property
     def name(self) -> str:
         return self._name
-
-    @property
-    def condition(self) -> asyncio.Condition:
-        return self._condition
 
     def getHandlers(
             self) -> typing.List[typing.Callable[[typing.Any], typing.Any]]:
@@ -106,13 +101,18 @@ class Event:
         self._logger.debug("Emitting %s", self)
         # self._logger.debug("Emitting %s(%s,%s)",self,a,kw)
         self._validateArgs(a, kw)
-        asyncio.get_event_loop().create_task(self.__emitCondition())
         for f in self.getHandlers():
             self.callHandler(f, *a, **kw)
 
-    async def __emitCondition(self) -> None:
-        async with self.condition:
-            self.condition.notify_all()
+    def __await__(self) -> typing.Generator[typing.Any, None, typing.Any]:
+        def callback(*args: typing.Any) -> None:
+            if not fut.done():
+                fut.set_result(args[0] if len(args) == 1 else args)
+
+        fut: asyncio.Future[typing.Any] = asyncio.Future()
+        token = self.connect(callback, Event.Group.PROCESS)
+        fut.add_done_callback(lambda f: token.disconnect())
+        return fut.__await__()
 
     def _validateArgs(self, args: typing.Iterable[typing.Any],
                       kwargs: typing.Mapping[str, typing.Any]) -> None:

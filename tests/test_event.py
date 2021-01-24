@@ -47,12 +47,11 @@ class TestEvent(unittest.TestCase):
         event.emit()
 
     async def waitForEvent(self, event: Event) -> None:
-        async with event.condition:
-            await event.condition.wait()
+        await event
         self.called = True
         asyncio.get_event_loop().stop()
 
-    def test_EventAsCondition(self) -> None:
+    def test_awaitable(self) -> None:
         event = Event("Test")
         self.called = False
 
