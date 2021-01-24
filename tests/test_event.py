@@ -2,5 +2,5 @@ import unittest
 
 
 class TestEvent(unittest.TestCase):
-    def test_something(self):
+    def test_something(self) -> None:
         pass
