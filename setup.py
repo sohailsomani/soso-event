@@ -12,11 +12,12 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/sohailsomani/soso-event",
-    packages=setuptools.find_packages(include=['soso.*']),
+    packages=['soso.event'],
     classifiers=[
         "Programming Language :: Python :: 3.8",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent"
     ],
     python_requires=">=3.8",
+    zip_safe=False
 )
