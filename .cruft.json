@@ -1,0 +1,12 @@
+{
+    "template": "https://github.com/sohailsomani/soso-cookiecutter-python",
+    "commit": "6939c8cc3fbff80d423315421dbc5e7b05b8701",
+    "context": {
+        "cookiecutter": {
+            "project_name": "event",
+            "short_description": "Simple event handling library",
+            "_template": "https://github.com/sohailsomani/soso-cookiecutter-python"
+        }
+    },
+    "directory": null
+}
