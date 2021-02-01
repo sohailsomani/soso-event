@@ -38,6 +38,7 @@ class Event:
 
     def __init__(self, name: str, *argTypes: type, **kwArgTypes: type):
         self._name = name
+        self._loop = asyncio.get_event_loop()
         self._argTypes = argTypes
         self._kwArgTypes = kwArgTypes
         self._groups: typing.Dict[
@@ -77,12 +78,11 @@ class Event:
         self.__isBeingEmitted = True
         try:
             ret = f(*a, **kw)
-            awaitable = asyncio.iscoroutinefunction(f) \
-                or asyncio.iscoroutine(f) \
-                or asyncio.iscoroutinefunction(ret) \
-                or asyncio.iscoroutine(ret)
-            if awaitable:
-                asyncio.get_event_loop().create_task(ret)
+            try:
+                self._loop.create_task(ret)
+            except TypeError:
+                # HACK: in the case that we didn't actually get an awaitable
+                pass
             self._nerrors = 0
         except Exception as e:
             self._nerrors += 1
